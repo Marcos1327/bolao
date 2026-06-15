@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bolão Copa do Mundo</title>
+    <meta name="description" content="Nosso Bolão da Copa do Mundo - Acompanhe os resultados e pontuações.">
+    <!-- Fonte moderna do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+</head>
+
+<body>
+    <!-- Header Fixo com o Placar -->
+    <header class="scoreboard">
+        <div class="player-card p1-card">
+            <input type="text" id="p1-name" value="Jogador 1" class="player-name-input" placeholder="Nome J1"
+                autocomplete="off">
+            <div class="score-display">
+                <span class="score-value" id="p1-score">0</span>
+                <span class="score-label">pts</span>
+            </div>
+        </div>
+
+        <div class="trophy-icon">🏆</div>
+
+        <div class="player-card p2-card">
+            <input type="text" id="p2-name" value="Jogador 2" class="player-name-input" placeholder="Nome J2"
+                autocomplete="off">
+            <div class="score-display">
+                <span class="score-value" id="p2-score">0</span>
+                <span class="score-label">pts</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Container Principal onde os grupos serão renderizados -->
+    <main class="app-container">
+        <div class="intro-text">
+            <h1>Bolão da Copa</h1>
+            <p>Preencha os seus palpites, os resultados oficiais, e aponte a classificação final de cada grupo para
+                calcular a pontuação automaticamente.</p>
+
+            <div class="data-actions">
+                <button id="btn-export" class="action-btn">Exportar Backup (JSON)</button>
+                <label for="file-import" class="action-btn">Importar Backup</label>
+                <input type="file" id="file-import" accept=".json" style="display: none;">
+            </div>
+        </div>
+
+        <div class="filters-container">
+            <div class="filter-row" id="group-filters">
+                <!-- Preenchido via JS -->
+            </div>
+            <div class="filter-row" id="round-filters">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <div id="groups-container">
+            <!-- Conteúdo gerado via JavaScript -->
+        </div>
+    </main>
+
+    <script src="./app.js"></script>
+</body>
+
+</html>
