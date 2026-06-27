@@ -156,8 +156,15 @@ let appState = {
 
 let uiState = {
     groupFilter: 'all',
-    roundFilter: 'all'
+    roundFilter: 'all',
+    currentTab: 'groups'
 };
+
+const ALL_TEAMS = [];
+for (const g in GROUPS_DATA) {
+    ALL_TEAMS.push(...GROUPS_DATA[g].teams);
+}
+ALL_TEAMS.sort();
 
 /**
  * Carrega os dados salvos no localStorage, ou inicializa um estado vazio.
@@ -175,6 +182,7 @@ function loadState() {
     // Assegura estrutura base caso seja um estado novo
     if (!appState.matches) appState.matches = {};
     if (!appState.standings) appState.standings = {};
+    if (!appState.knockoutTeams) appState.knockoutTeams = {}; // Ex: { k1_0: "Brasil", k1_1: "Chile" }
 
     for (const groupId in GROUPS_DATA) {
         if (!appState.standings[groupId]) {
@@ -199,23 +207,37 @@ function saveState() {
  * Retorna os pontos obtidos em uma partida (0, 3 ou 5).
  * @param {Array} guess - Palpite Ex: [1, 0]
  * @param {Array} real - Real Ex: [1, 0]
+ * @param {number|null} guessPen - 0 ou 1 (time 1 ou time 2 venceu penaltis no palpite)
+ * @param {number|null} realPen - 0 ou 1 (time 1 ou time 2 venceu penaltis no real)
+ * @param {boolean} isKnockout - flag para indicar se é jogo de mata-mata
  */
-function getMatchPoints(guess, real) {
+function getMatchPoints(guess, real, guessPen = null, realPen = null, isKnockout = false) {
     if (!guess || !real || guess[0] === null || guess[1] === null || real[0] === null || real[1] === null) return 0;
 
     const [gH, gA] = guess; // Guess Home, Guess Away
     const [rH, rA] = real;  // Real Home, Real Away
 
-    // Regra: O placar oficial 0x0 não gera pontos para ninguém
-    if (rH === 0 && rA === 0) return 0;
+    // Regra original: O placar oficial 0x0 não gera pontos para ninguém na fase de grupos
+    if (!isKnockout && rH === 0 && rA === 0) return 0;
 
-    // Placar Exato: 5 pontos
-    if (gH === rH && gA === rA) return 5;
+    // Placar Exato: 5 pontos (Para mata-mata, se for empate, precisa acertar quem passou nos pênaltis)
+    const isGuessDraw = (gH === gA);
+    const isRealDraw = (rH === rA);
+
+    if (gH === rH && gA === rA) {
+        if (isKnockout && isRealDraw) {
+            // Acertou o placar de empate. Só ganha 5 pontos se acertar o vencedor dos pênaltis
+            if (guessPen !== null && realPen !== null && guessPen === realPen) return 5;
+            return 0; // Se errou o penalti, perde tudo (ou poderíamos dar 0). Regra diz: "A pontuação que valerá é de qual equipe irá passar"
+        }
+        return 5;
+    }
 
     // Acertar o vencedor (ou empate): 3 pontos
-    const gDiff = gH - gA;
-    const rDiff = rH - rA;
-    if (Math.sign(gDiff) === Math.sign(rDiff)) return 3;
+    let gWinner = gH > gA ? 0 : (gH < gA ? 1 : guessPen);
+    let rWinner = rH > rA ? 0 : (rH < rA ? 1 : realPen);
+
+    if (gWinner !== null && rWinner !== null && gWinner === rWinner) return 3;
 
     return 0;
 }
@@ -248,18 +270,19 @@ function calculateAndDisplayScores() {
     // Calcular pontos das partidas
     for (const matchId in appState.matches) {
         const matchData = appState.matches[matchId];
+        const isKnockout = matchId.startsWith('k');
         if (matchData.real && matchData.real[0] !== null && matchData.real[1] !== null) {
 
             // P1 Score
             if (matchData.p1) {
-                const pts = getMatchPoints(matchData.p1, matchData.real);
+                const pts = getMatchPoints(matchData.p1, matchData.real, matchData.p1Pen, matchData.realPen, isKnockout);
                 p1Total += pts;
                 updateMatchBadge(matchId, 'p1', pts);
             }
 
             // P2 Score
             if (matchData.p2) {
-                const pts = getMatchPoints(matchData.p2, matchData.real);
+                const pts = getMatchPoints(matchData.p2, matchData.real, matchData.p2Pen, matchData.realPen, isKnockout);
                 p2Total += pts;
                 updateMatchBadge(matchId, 'p2', pts);
             }

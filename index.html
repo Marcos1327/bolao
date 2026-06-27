@@ -39,8 +39,14 @@
         </div>
     </header>
 
+    <!-- Abas de Navegação -->
+    <nav class="main-tabs">
+        <button class="tab-btn active" data-tab="groups">Fase de Grupos</button>
+        <button class="tab-btn" data-tab="knockout">Mata-Mata</button>
+    </nav>
+
     <!-- Container Principal onde os grupos serão renderizados -->
-    <main class="app-container">
+    <main class="app-container" id="tab-groups">
         <div class="intro-text">
             <h1>Bolão da Copa</h1>
             <p>Preencha os seus palpites, os resultados oficiais, e aponte a classificação final de cada grupo para
@@ -67,7 +73,27 @@
         </div>
     </main>
 
+    <!-- Container da Fase de Mata-Mata -->
+    <main class="app-container" id="tab-knockout" style="display: none;">
+        <div class="intro-text">
+            <h1>Fase Mata-Mata</h1>
+            <p>Selecione os times dos 16-avos e preencha os placares. Em caso de empate, selecione quem avançou nos pênaltis.</p>
+        </div>
+        
+        <div class="filters-container">
+            <div class="filter-row" id="knockout-phase-filters">
+                <!-- Preenchido via JS -->
+            </div>
+        </div>
+
+        <!-- Chaveamento será injetado via JS -->
+        <div id="knockout-container">
+            <!-- Conteúdo gerado via JavaScript -->
+        </div>
+    </main>
+
     <script src="./app.js"></script>
+    <script src="./knockout.js"></script>
 </body>
 
 </html>
